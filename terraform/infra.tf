@@ -117,16 +117,19 @@ module "asg" {
   launch_template_name                   = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
-  spot_price                = "0.0038"
+  # spot_price                = "0.0038"
   security_groups           = [module.network.aws_security_groups.app.id]
   iam_instance_profile_name = random_pet.instances_name.id
   user_data                 = data.template_file.userdata_script.rendered
   # use_lc                    = true
   # create_lc                 = true
 
-
-
-
+  instance_market_options = {
+    market_type = "spot"
+    spot_options = {
+      block_duration_minutes = 60
+    }
+  }
 
   block_device_mappings = [
     {
