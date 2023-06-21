@@ -121,6 +121,7 @@ module "asg" {
   security_groups           = [module.network.aws_security_groups.app.id]
   iam_instance_profile_name = random_pet.instances_name.id
   user_data                 = base64encode(data.template_file.userdata_script.rendered)
+  ebs_optimized     = true
   # use_lc                    = true
   # create_lc                 = true
 
