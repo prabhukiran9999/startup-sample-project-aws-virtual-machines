@@ -51,8 +51,8 @@ jobs:
             cd terraform/
             cat <<EOF > backend.hcl
             bucket = "${{ secrets.S3_BACKEND_NAME }}"
-            key = "${{ secrets.LICENCEPLATE }}/${{ env.environment }}/virtual-machine-app.tfstate"
-            dynamodb_table = "terraform-remote-state-lock-${{ secrets.LICENCEPLATE }}"
+            key = "${{ vars.LICENCEPLATE }}/${{ env.environment }}/virtual-machine-app.tfstate"
+            dynamodb_table = "terraform-remote-state-lock-${{ vars.LICENCEPLATE }}"
             EOF
             
             terraform init -backend-config=backend.hcl -input=false
