@@ -310,7 +310,14 @@ resource "aws_iam_policy" "db_ssp" {
           "ec2messages:FailMessage",
           "ec2messages:GetEndpoint",
           "ec2messages:GetMessages",
-          "ec2messages:SendReply"
+          "ec2messages:SendReply",
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateLaunchTemplate",
+          "ec2:CreateLaunchTemplateVersion",
+          "ec2:DescribeLaunchTemplateVersions",
+          "ec2:DeleteLaunchTemplate",
+          "ec2:DeleteLaunchTemplateVersions",
+
         ],
         "Resource" : "*"
       },
