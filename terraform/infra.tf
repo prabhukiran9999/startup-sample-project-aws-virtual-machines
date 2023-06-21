@@ -159,13 +159,11 @@ module "asg" {
 
 
 
-  tags = [
-    {
+  tags = {
       key                 = "Environment"
       value               = "dev"
       propagate_at_launch = true
-    },
-  ]
+    }
 
 }
 
