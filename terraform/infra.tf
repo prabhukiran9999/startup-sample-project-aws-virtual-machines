@@ -109,26 +109,26 @@ resource "random_pet" "instances_name" {
 /* Auto Scaling & Launch Configuration */
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 5.0"
+  version = "~> 6.0"
 
   name = random_pet.instances_name.id
 
   # Launch configuration creation
-  lc_name                   = var.lc_name
+  launch_template_name                   = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
   spot_price                = "0.0038"
   security_groups           = [module.network.aws_security_groups.app.id]
   iam_instance_profile_name = random_pet.instances_name.id
   user_data                 = data.template_file.userdata_script.rendered
-  use_lc                    = true
-  create_lc                 = true
+  # use_lc                    = true
+  # create_lc                 = true
 
 
 
 
 
-  root_block_device = [
+  block_device_mappings = [
     {
       volume_size = "50"
       volume_type = "gp2"
