@@ -109,37 +109,29 @@ resource "random_pet" "instances_name" {
 /* Auto Scaling & Launch Configuration */
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 6.0"
+  version = "5.0.0"
 
   name = random_pet.instances_name.id
 
-  # Launch Template creation
-  launch_template_name                   = var.lc_name
+  # Launch configuration creation
+  lc_name                   = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
-  # spot_price                = "0.0038"
+  spot_price                = "0.0038"
   security_groups           = [module.network.aws_security_groups.app.id]
   iam_instance_profile_name = random_pet.instances_name.id
-  user_data                 = base64encode(data.template_file.userdata_script.rendered)
-  ebs_optimized     = true
-  update_default_version      = true
-  # use_lc                    = true
-  # create_lc                 = true
+  user_data                 = data.template_file.userdata_script.rendered
+  use_lc                    = true
+  create_lc                 = true
 
-  instance_market_options = {
-    market_type = "spot"
-    spot_options = {
-      block_duration_minutes = 60
-    }
-  }
 
-  block_device_mappings = [
+
+
+
+  root_block_device = [
     {
-      device_name = "/dev/xvda"
-      ebs = {
-        volume_size           = 50
-        volume_type           = "gp2"
-      }
+      volume_size = "50"
+      volume_type = "gp2"
     },
   ]
 
@@ -164,11 +156,13 @@ module "asg" {
 
 
 
-  tags = {
+  tags = [
+    {
       key                 = "Environment"
       value               = "dev"
       propagate_at_launch = true
-    }
+    },
+  ]
 
 }
 
@@ -204,138 +198,125 @@ resource "aws_iam_policy" "db_ssp" {
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
-      # {
-      #   "Sid" : "VisualEditor0",
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "dynamodb:PutItem",
-      #     "dynamodb:DeleteItem",
-      #     "dynamodb:GetItem",
-      #     "dynamodb:Query",
-      #     "dynamodb:UpdateItem",
-      #     "dynamodb:UpdateTable"
-      #   ],
-      #   "Resource" : "*"
-      # },
+      {
+        "Sid" : "VisualEditor0",
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:GetItem",
+          "dynamodb:Query",
+          "dynamodb:UpdateItem",
+          "dynamodb:UpdateTable"
+        ],
+        "Resource" : "*"
+      },
 
-      # {
-      #   "Action" : [
-      #     "kms:DescribeKey",
-      #     "kms:GenerateDataKey*",
-      #     "kms:Decrypt",
-      #     "kms:Encrypt",
-      #     "kms:ReEncrypt*"
-      #   ],
-      #   "Resource" : "*",
-      #   "Effect" : "Allow"
-      # },
-      # {
-      #   "Action" : "kms:Decrypt",
-      #   "Resource" : "*",
-      #   "Effect" : "Allow"
-      # },
-      # {
-      #   "Action" : "s3:GetEncryptionConfiguration",
-      #   "Resource" : [
-      #     "${aws_s3_bucket.upload_bucket.arn}",
-      #     "${aws_s3_bucket.upload_bucket.arn}/*"
-      #   ],
-      #   "Effect" : "Allow"
-      # },
-      # {
-      #   "Action" : [
-      #     "s3:PutObject",
-      #     "s3:PutObjectAcl"
-      #   ],
-      #   "Resource" : "*",
-      #   "Effect" : "Allow"
-      # },
-      # {
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "cloudwatch:PutMetricData",
-      #     "ec2:DescribeVolumes",
-      #     "ec2:DescribeTags",
-      #     "logs:PutLogEvents",
-      #     "logs:DescribeLogStreams",
-      #     "logs:DescribeLogGroups",
-      #     "logs:CreateLogStream",
-      #     "logs:CreateLogGroup"
-      #   ],
-      #   "Resource" : "*"
-      # },
-      # {
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "ssm:GetParameter"
-      #   ],
-      #   "Resource" : "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*"
-      # },
-      # {
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "ssm:DescribeAssociation",
-      #     "ssm:GetDeployablePatchSnapshotForInstance",
-      #     "ssm:GetDocument",
-      #     "ssm:DescribeDocument",
-      #     "ssm:GetManifest",
-      #     "ssm:GetParameter",
-      #     "ssm:GetParameters",
-      #     "ssm:ListAssociations",
-      #     "ssm:ListInstanceAssociations",
-      #     "ssm:PutInventory",
-      #     "ssm:PutComplianceItems",
-      #     "ssm:PutConfigurePackageResult",
-      #     "ssm:UpdateAssociationStatus",
-      #     "ssm:UpdateInstanceAssociationStatus",
-      #     "ssm:UpdateInstanceInformation"
-      #   ],
-      #   "Resource" : "*"
-      # },
-      # {
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "ssmmessages:CreateControlChannel",
-      #     "ssmmessages:CreateDataChannel",
-      #     "ssmmessages:OpenControlChannel",
-      #     "ssmmessages:OpenDataChannel"
-      #   ],
-      #   "Resource" : "*"
-      # },
-      # {
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "ec2messages:AcknowledgeMessage",
-      #     "ec2messages:DeleteMessage",
-      #     "ec2messages:FailMessage",
-      #     "ec2messages:GetEndpoint",
-      #     "ec2messages:GetMessages",
-      #     "ec2messages:SendReply",
-      #     "ec2:CreateLaunchTemplate",
-      #     "ec2:CreateLaunchTemplateVersion",
-      #     "ec2:DescribeLaunchTemplateVersions",
-      #     "ec2:DeleteLaunchTemplate",
-      #     "ec2:DeleteLaunchTemplateVersions",
-      #     "ec2:RunInstances",
-      #     "ec2:CreateTags",
-      #     "iam:PassRole"
+      {
+        "Action" : [
+          "kms:DescribeKey",
+          "kms:GenerateDataKey*",
+          "kms:Decrypt",
+          "kms:Encrypt",
+          "kms:ReEncrypt*"
+        ],
+        "Resource" : "*",
+        "Effect" : "Allow"
+      },
+      {
+        "Action" : "kms:Decrypt",
+        "Resource" : "*",
+        "Effect" : "Allow"
+      },
+      {
+        "Action" : "s3:GetEncryptionConfiguration",
+        "Resource" : [
+          "${aws_s3_bucket.upload_bucket.arn}",
+          "${aws_s3_bucket.upload_bucket.arn}/*"
+        ],
+        "Effect" : "Allow"
+      },
+      {
+        "Action" : [
+          "s3:PutObject",
+          "s3:PutObjectAcl"
+        ],
+        "Resource" : "*",
+        "Effect" : "Allow"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "cloudwatch:PutMetricData",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeTags",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+          "logs:DescribeLogGroups",
+          "logs:CreateLogStream",
+          "logs:CreateLogGroup"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:GetParameter"
+        ],
+        "Resource" : "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:DescribeAssociation",
+          "ssm:GetDeployablePatchSnapshotForInstance",
+          "ssm:GetDocument",
+          "ssm:DescribeDocument",
+          "ssm:GetManifest",
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:ListAssociations",
+          "ssm:ListInstanceAssociations",
+          "ssm:PutInventory",
+          "ssm:PutComplianceItems",
+          "ssm:PutConfigurePackageResult",
+          "ssm:UpdateAssociationStatus",
+          "ssm:UpdateInstanceAssociationStatus",
+          "ssm:UpdateInstanceInformation"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ec2messages:AcknowledgeMessage",
+          "ec2messages:DeleteMessage",
+          "ec2messages:FailMessage",
+          "ec2messages:GetEndpoint",
+          "ec2messages:GetMessages",
+          "ec2messages:SendReply"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ds:CreateComputer",
+          "ds:DescribeDirectories"
+        ],
+        "Resource" : "*"
+      }
 
-      #   ],
-      #   "Resource" : "*"
-      # },
-      # {
-      #   "Effect" : "Allow",
-      #   "Action" : [
-      #     "ds:CreateComputer",
-      #     "ds:DescribeDirectories"
-      #   ],
-      #   "Resource" : "*"
-      # }
-        {
-            "Effect": "Allow",
-            "Action": "*",
-            "Resource": "*"
-        }
 
     ]
   })
