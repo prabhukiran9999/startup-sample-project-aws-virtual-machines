@@ -136,8 +136,10 @@ module "asg" {
   block_device_mappings = [
     {
       device_name = "/dev/xvda"
-      volume_size = "50"
-      volume_type = "gp2"
+      ebs = {
+        volume_size           = 50
+        volume_type           = "gp2"
+      }
     },
   ]
 
