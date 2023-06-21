@@ -154,16 +154,6 @@ module "asg" {
     triggers = ["tag"]
   }
 
-
-
-  tags = [
-    {
-      key                 = "Environment"
-      value               = "dev"
-      propagate_at_launch = true
-    },
-  ]
-
 }
 
 resource "aws_iam_instance_profile" "ssp_profile" {
