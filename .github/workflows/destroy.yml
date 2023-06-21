@@ -26,7 +26,7 @@ jobs:
     environment: ${{ inputs.env }}
     steps:
       - name: checkout the repo and building the Backend    
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         
       - name: print cloud_environment
         run: echo the cloud env is ${{ env.environment }}
@@ -41,7 +41,7 @@ jobs:
              EOF
              
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ vars.TERRAFORM_DEPLOY_ROLE_ARN }}
           aws-region: ca-central-1
