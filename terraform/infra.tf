@@ -113,7 +113,7 @@ module "asg" {
 
   name = random_pet.instances_name.id
 
-  # Launch configuration creation
+  # Launch Template creation
   launch_template_name                   = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
@@ -122,6 +122,7 @@ module "asg" {
   iam_instance_profile_name = random_pet.instances_name.id
   user_data                 = base64encode(data.template_file.userdata_script.rendered)
   ebs_optimized     = true
+  update_default_version      = true
   # use_lc                    = true
   # create_lc                 = true
 
