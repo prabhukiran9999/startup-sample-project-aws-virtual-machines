@@ -120,7 +120,7 @@ module "asg" {
   # spot_price                = "0.0038"
   security_groups           = [module.network.aws_security_groups.app.id]
   iam_instance_profile_name = random_pet.instances_name.id
-  user_data                 = data.template_file.userdata_script.rendered
+  user_data                 = base64encode(data.template_file.userdata_script.rendered)
   # use_lc                    = true
   # create_lc                 = true
 
