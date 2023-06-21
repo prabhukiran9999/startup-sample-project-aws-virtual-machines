@@ -318,6 +318,7 @@ resource "aws_iam_policy" "db_ssp" {
           "ec2:DeleteLaunchTemplate",
           "ec2:DeleteLaunchTemplateVersions",
           "ec2:RunInstances",
+          "ec2:CreateTags",
           "iam:PassRole"
 
         ],
