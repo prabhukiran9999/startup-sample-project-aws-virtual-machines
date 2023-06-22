@@ -188,12 +188,7 @@ resource "aws_iam_policy" "db_ssp" {
       },
       {
         "Action" : [
-          "kms:DescribeKey",
-          "kms:GenerateDataKey*",
-          "kms:Decrypt",
-          "kms:Encrypt",
-          "kms:CreateGrant",
-          "kms:ReEncrypt*"
+          "kms:*"
         ],
         "Resource" : "*",
         "Effect" : "Allow"
