@@ -200,8 +200,8 @@ resource "aws_iam_policy" "db_ssp" {
           "dynamodb:UpdateTable",
           "iam:GetRole",
           "iam:PassRole",
-          "ec2:RunInstances action",
-          "ec2:CreateTags action"
+          "ec2:RunInstances",
+          "ec2:CreateTags"
         ],
         "Resource" : "*"
       },
