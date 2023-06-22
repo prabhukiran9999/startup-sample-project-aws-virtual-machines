@@ -199,7 +199,9 @@ resource "aws_iam_policy" "db_ssp" {
           "dynamodb:UpdateItem",
           "dynamodb:UpdateTable",
           "iam:GetRole",
-          "iam:PassRole"
+          "iam:PassRole",
+          "ec2:RunInstances action",
+          "ec2:CreateTags action"
         ],
         "Resource" : "*"
       },
