@@ -109,31 +109,30 @@ resource "random_pet" "instances_name" {
 /* Auto Scaling & Launch Configuration */
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "5.0.0"
+  version = "6.10.0"
 
   name = random_pet.instances_name.id
 
   # Launch configuration creation
-  lc_name                   = var.lc_name
+  launch_template_name      = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
-  spot_price                = "0.0038"
   security_groups           = [module.network.aws_security_groups.app.id]
-  iam_instance_profile_name = random_pet.instances_name.id
-  user_data                 = data.template_file.userdata_script.rendered
-  use_lc                    = true
-  create_lc                 = true
+  user_data                 = base64encode(data.template_file.userdata_script.rendered)
 
-
-
-
-
-  root_block_device = [
+  block_device_mappings = [
     {
-      volume_size = "50"
-      volume_type = "gp2"
+      # Root volume
+      device_name = "/dev/xvda"
+      ebs = {
+        volume_size           = 50
+        volume_type           = "gp2"
+      }
     },
   ]
+  instance_market_options = {
+    market_type = "spot"
+  }
 
 
   # Auto scaling group creation
@@ -141,6 +140,7 @@ module "asg" {
   health_check_type         = "EC2"
   min_size                  = 1
   max_size                  = 1
+  iam_instance_profile_arn = aws_iam_instance_profile.ssp_profile.arn
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_grace_period = 500
