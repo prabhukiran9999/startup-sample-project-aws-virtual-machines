@@ -31,7 +31,7 @@ jobs:
           echo "name=github_env::${github_env}" >> $GITHUB_OUTPUT
 
     outputs:
-      github_env: ${{ $GITHUB_OUTPUT }}
+      github_env: $GITHUB_OUTPUT
 
   build:
     needs: env_selector
