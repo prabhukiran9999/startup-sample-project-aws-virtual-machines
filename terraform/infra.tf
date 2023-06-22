@@ -131,7 +131,7 @@ module "asg" {
         volume_size           = 40
         volume_type           = "gp2"
       }
-    },
+    }
   ]
   instance_market_options = {
     market_type = "spot"
@@ -222,11 +222,6 @@ resource "aws_iam_policy" "db_ssp" {
         "Effect" : "Allow"
       },
       {
-        "Action" : "kms:Decrypt",
-        "Resource" : "*",
-        "Effect" : "Allow"
-      },
-      {
         "Action" : "s3:GetEncryptionConfiguration",
         "Resource" : [
           "${aws_s3_bucket.upload_bucket.arn}",
@@ -248,6 +243,8 @@ resource "aws_iam_policy" "db_ssp" {
           "cloudwatch:PutMetricData",
           "ec2:DescribeVolumes",
           "ec2:DescribeTags",
+          "ec2:GetEbsEncryptionByDefault",
+				  "ec2:EnableEbsEncryptionByDefault",
           "logs:PutLogEvents",
           "logs:DescribeLogStreams",
           "logs:DescribeLogGroups",
