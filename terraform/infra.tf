@@ -109,41 +109,38 @@ resource "random_pet" "instances_name" {
 /* Auto Scaling & Launch Configuration */
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "6.10.0"
+  version = "5.0.0"
 
   name = random_pet.instances_name.id
 
   # Launch configuration creation
-  launch_template_name      = var.lc_name
+  lc_name                   = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
-  vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
+  spot_price                = "0.0038"
   security_groups           = [module.network.aws_security_groups.app.id]
-  user_data                 = base64encode(data.template_file.userdata_script.rendered)
+  iam_instance_profile_name = random_pet.instances_name.id
+  user_data                 = data.template_file.userdata_script.rendered
+  use_lc                    = true
+  create_lc                 = true
 
-  block_device_mappings = [
+
+
+
+
+  root_block_device = [
     {
-      # Root volume
-      device_name = "/dev/xvda"
-      ebs = {
-        delete_on_termination = true
-        encrypted             = true
-        volume_size           = 40
-        volume_type           = "gp2"
-      }
-    }
+      volume_size = "50"
+      volume_type = "gp2"
+    },
   ]
-  instance_market_options = {
-    market_type = "spot"
-  }
 
 
   # Auto scaling group creation
-  # vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
+  vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
   health_check_type         = "EC2"
   min_size                  = 1
   max_size                  = 1
-  iam_instance_profile_arn = aws_iam_instance_profile.ssp_profile.arn
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_grace_period = 500
@@ -200,11 +197,7 @@ resource "aws_iam_policy" "db_ssp" {
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:UpdateItem",
-          "dynamodb:UpdateTable",
-          "iam:GetRole",
-          "iam:PassRole",
-          "ec2:RunInstances",
-          "ec2:CreateTags"
+          "dynamodb:UpdateTable"
         ],
         "Resource" : "*"
       },
@@ -215,9 +208,13 @@ resource "aws_iam_policy" "db_ssp" {
           "kms:GenerateDataKey*",
           "kms:Decrypt",
           "kms:Encrypt",
-          "kms:CreateGrant",
           "kms:ReEncrypt*"
         ],
+        "Resource" : "*",
+        "Effect" : "Allow"
+      },
+      {
+        "Action" : "kms:Decrypt",
         "Resource" : "*",
         "Effect" : "Allow"
       },
@@ -243,8 +240,6 @@ resource "aws_iam_policy" "db_ssp" {
           "cloudwatch:PutMetricData",
           "ec2:DescribeVolumes",
           "ec2:DescribeTags",
-          "ec2:GetEbsEncryptionByDefault",
-				  "ec2:EnableEbsEncryptionByDefault",
           "logs:PutLogEvents",
           "logs:DescribeLogStreams",
           "logs:DescribeLogGroups",
