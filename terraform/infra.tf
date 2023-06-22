@@ -89,15 +89,38 @@ resource "random_pet" "instances_name" {
 /* Auto Scaling & Launch Configuration */
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "6.0.0"
+
+  # Autoscaling group
   name = random_pet.instances_name.id
-  # Launch configuration creation
-  launch_template_name      = var.lc_name
-  image_id                  = var.iamge_id
-  instance_type             = "t2.micro"
-  vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
+
+  min_size                  = 0
+  max_size                  = 1
+  desired_capacity          = 1
+  wait_for_capacity_timeout = 0
+  health_check_type         = "EC2"
+  vpc_zone_identifier       = [module.network.aws_subnet_ids.app.ids]
   security_groups           = [module.network.aws_security_groups.app.id]
-  user_data                 = base64encode(data.template_file.userdata_script.rendered)
+  iam_instance_profile_arn = aws_iam_instance_profile.ssp_profile.arn
+  iam_instance_profile_name = aws_iam_instance_profile.ssp_profile.name
+
+
+  instance_refresh = {
+    strategy = "Rolling"
+    preferences = {
+      min_healthy_percentage = 50
+    }
+    triggers = ["tag"]
+  }
+
+  # Launch template
+  launch_template_name        = var.lc_name
+  launch_template_description = "sample-app-vm-launch-template"
+  update_default_version      = true
+  image_id          = var.iamge_id
+  instance_type     = "t2.micro"
+  ebs_optimized     = true
+  enable_monitoring = true
+
   block_device_mappings = [
     {
       # Root volume
@@ -106,7 +129,6 @@ module "asg" {
       ebs = {
         delete_on_termination = true
         encrypted             = true
-        kms_key_id            = "arn:aws:kms:ca-central-1:813318847992:key/b6831bc4-6600-4313-b16c-0cc29e1c5a14"
         volume_size           = 20
         volume_type           = "gp2"
       }
@@ -121,26 +143,32 @@ module "asg" {
       }
     }
   ]
+
   instance_market_options = {
     market_type = "spot"
-  }
-  # Auto scaling group creation
-  # vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
-  health_check_type         = "EC2"
-  min_size                  = 1
-  max_size                  = 1
-  iam_instance_profile_arn = aws_iam_instance_profile.ssp_profile.arn
-  desired_capacity          = 1
-  wait_for_capacity_timeout = 0
-  health_check_grace_period = 500
-  target_group_arns         = [aws_alb_target_group.app.arn]
-  instance_refresh = {
-    strategy = "Rolling"
-    preferences = {
-      min_healthy_percentage = 50
+    spot_options = {
+      block_duration_minutes = 60
     }
-    triggers = ["tag"]
   }
+
+  tag_specifications = [
+    {
+      resource_type = "instance"
+      tags          = { WhatAmI = "Sample-App-Intance" }
+    },
+    {
+      resource_type = "volume"
+      tags          = { WhatAmI = "Sample-app-Volume" }
+    },
+    {
+      resource_type = "spot-instances-request"
+      tags          = { WhatAmI = "SpotInstanceRequest" }
+    }
+  ]
+  tags = {
+    Project     = "Sample-App"
+  }
+
 }
 resource "aws_iam_instance_profile" "ssp_profile" {
   name = random_pet.instances_name.id
