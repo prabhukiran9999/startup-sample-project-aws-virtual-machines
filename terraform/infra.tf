@@ -197,7 +197,9 @@ resource "aws_iam_policy" "db_ssp" {
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:UpdateItem",
-          "dynamodb:UpdateTable"
+          "dynamodb:UpdateTable",
+          "iam:GetRole",
+          "iam:PassRole"
         ],
         "Resource" : "*"
       },
