@@ -98,7 +98,7 @@ module "asg" {
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  vpc_zone_identifier       = [module.network.aws_subnet_ids.app.ids]
+  vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
   security_groups           = [module.network.aws_security_groups.app.id]
   iam_instance_profile_arn = aws_iam_instance_profile.ssp_profile.arn
   iam_instance_profile_name = aws_iam_instance_profile.ssp_profile.name
