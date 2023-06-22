@@ -125,6 +125,8 @@ module "asg" {
       # Root volume
       device_name = "/dev/xvda"
       ebs = {
+        delete_on_termination = true
+        encrypted             = true
         volume_size           = 50
         volume_type           = "gp2"
       }
