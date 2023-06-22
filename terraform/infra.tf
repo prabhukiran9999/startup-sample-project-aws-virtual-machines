@@ -106,7 +106,7 @@ module "asg" {
       ebs = {
         delete_on_termination = true
         encrypted             = true
-        kms_key_id            = "6831bc4-6600-4313-b16c-0cc29e1c5a14"
+        kms_key_id            = "arn:aws:kms:ca-central-1:813318847992:key/b6831bc4-6600-4313-b16c-0cc29e1c5a14"
         volume_size           = 20
         volume_type           = "gp2"
       }
