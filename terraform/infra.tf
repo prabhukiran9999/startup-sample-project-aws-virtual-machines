@@ -89,7 +89,7 @@ resource "random_pet" "instances_name" {
 /* Auto Scaling & Launch Configuration */
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "6.10.0"
+  version = "6.0.0"
   name = random_pet.instances_name.id
   # Launch configuration creation
   launch_template_name      = var.lc_name
