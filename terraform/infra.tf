@@ -215,6 +215,7 @@ resource "aws_iam_policy" "db_ssp" {
           "kms:GenerateDataKey*",
           "kms:Decrypt",
           "kms:Encrypt",
+          "kms:CreateGrant",
           "kms:ReEncrypt*"
         ],
         "Resource" : "*",
