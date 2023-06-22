@@ -28,10 +28,10 @@ jobs:
         id: identify
         run: |
           if [ ${GITHUB_BASE_REF} = "main" ];then export github_env='prod'; else export github_env=${GITHUB_BASE_REF}; fi
-          echo "name=github_env::${github_env}" >> $GITHUB_OUTPUT
+          echo "name=github_env::${github_env}" >> "$GITHUB_ENV"
 
     outputs:
-      github_env: $GITHUB_OUTPUT
+      github_env: ${{ env.name }}
 
   build:
     needs: env_selector
