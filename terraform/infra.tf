@@ -117,7 +117,7 @@ module "asg" {
   launch_template_name      = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
-  vpc_zone_identifier = module.vpc.private_subnets
+  vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
   security_groups           = [module.network.aws_security_groups.app.id]
   user_data                 = base64encode(data.template_file.userdata_script.rendered)
 
