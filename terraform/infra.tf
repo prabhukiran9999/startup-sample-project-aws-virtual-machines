@@ -117,6 +117,7 @@ module "asg" {
   launch_template_name      = var.lc_name
   image_id                  = var.iamge_id
   instance_type             = "t2.micro"
+  vpc_zone_identifier = module.vpc.private_subnets
   security_groups           = [module.network.aws_security_groups.app.id]
   user_data                 = base64encode(data.template_file.userdata_script.rendered)
 
@@ -127,7 +128,7 @@ module "asg" {
       ebs = {
         delete_on_termination = true
         encrypted             = true
-        volume_size           = 50
+        volume_size           = 40
         volume_type           = "gp2"
       }
     },
@@ -138,7 +139,7 @@ module "asg" {
 
 
   # Auto scaling group creation
-  vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
+  # vpc_zone_identifier       = module.network.aws_subnet_ids.app.ids
   health_check_type         = "EC2"
   min_size                  = 1
   max_size                  = 1
