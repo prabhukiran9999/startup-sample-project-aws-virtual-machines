@@ -28,7 +28,7 @@ jobs:
         id: identify
         run: |
           if [ ${GITHUB_BASE_REF} = "main" ];then export github_env='prod'; else export github_env=${GITHUB_BASE_REF}; fi
-          echo "name=github_env::${github_env}" >> "$GITHUB_ENV"
+          echo "name=${github_env}" >> "$GITHUB_ENV"
 
     outputs:
       github_env: ${{ env.name }}
